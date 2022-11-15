@@ -1,28 +1,62 @@
-#define LED_1_PIN 11 // led 1 to pin 11
-#define LED_2_PIN 10 // led 2 to pin 10
-#define LED_3_PIN 9 // led 3 to pin 9
-#define BUTTON_PIN 4 // button to pin 4
+#define LED_1_PIN 11
+#define LED_2_PIN 10
+#define LED_3_PIN 9
+#define BUTTON_PIN 4
 
-void setup() // sets mode for pins
+#define LED_NUMBER 3
+
+byte LEDPinArray[LED_NUMBER] = { LED_1_PIN,
+                                 LED_2_PIN,
+                                 LED_3_PIN };
+
+unsigned long debounceDuration = 50; // millis
+unsigned long lastTimeButtonStateChanged = 0;
+
+byte lastButtonState = HIGH;
+
+int LEDIndex = 0;
+
+void initAllLEDs()
 {
-  pinMode(LED_1_PIN, OUTPUT);
-  pinMode(LED_2_PIN, OUTPUT);
-  pinMode(LED_3_PIN, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP); // push button
+  for (int i = 0; i < LED_NUMBER; i++) {
+    pinMode(LEDPinArray[i], OUTPUT);
+  }
+}
+
+void powerOnSelectedLEDOnly(int index)
+{
+  for (int i = 0; i < LED_NUMBER; i++) {
+    if (i == index) {
+      digitalWrite(LEDPinArray[i], HIGH);
+    }
+    else {
+      digitalWrite(LEDPinArray[i], LOW);
+    }
+  }
+}
+
+void setup()
+{
+  initAllLEDs();
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  digitalWrite(LEDPinArray[LEDIndex], HIGH);
 }
 
 void loop()
 {
-  byte buttonState = digitalRead(BUTTON_PIN); // "HIGH" means release, "LOW" means pressed
-  
-  if (buttonState == LOW) { // when button is pressed, led lights power on
-    digitalWrite(LED_1_PIN, HIGH);
-    digitalWrite(LED_2_PIN, HIGH);
-    digitalWrite(LED_3_PIN, HIGH);
-  }
-  else { // when button is released or not pressed, led lights power off
-    digitalWrite(LED_1_PIN, LOW);
-    digitalWrite(LED_2_PIN, LOW);
-    digitalWrite(LED_3_PIN, LOW);
+  unsigned long timeNow = millis();
+  if (timeNow - lastTimeButtonStateChanged > debounceDuration) {
+      byte buttonState = digitalRead(BUTTON_PIN);
+    if (buttonState != lastButtonState) {
+      lastTimeButtonStateChanged = timeNow;
+      lastButtonState = buttonState;
+      if (buttonState == HIGH) { // button has been released
+        LEDIndex++;
+        if (LEDIndex >= LED_NUMBER) {
+          LEDIndex = 0;
+        }
+        powerOnSelectedLEDOnly(LEDIndex);
+      }
+    }
   }
 }
