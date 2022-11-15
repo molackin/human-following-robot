@@ -3,9 +3,9 @@
 #define LED_3_PIN 9 // led 3 to pin 9
 #define BUTTON_PIN 4 // button to pin 4
 
-void setup() 
+void setup() // sets mode for pins
 {
-  pinMode(LED_1_PIN, OUTPUT); // sets modes for all pins
+  pinMode(LED_1_PIN, OUTPUT);
   pinMode(LED_2_PIN, OUTPUT);
   pinMode(LED_3_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP); // push button
